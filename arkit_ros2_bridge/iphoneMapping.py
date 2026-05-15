@@ -16,14 +16,14 @@ class DirectARKitSync(Node):
     def __init__(self):
         super().__init__('direct_arkit_sync')
         
-        # 🚀 THE SYNCHRONIZED PUBLISHERS
+        #   THE SYNCHRONIZED PUBLISHERS
         self.pub_rgb = self.create_publisher(Image, '/synced/rgb/image_raw', 10)
         self.pub_depth = self.create_publisher(Image, '/synced/depth/image_raw', 10)
         self.pub_info = self.create_publisher(CameraInfo, '/synced/camera_info', 10)
         self.pub_odom = self.create_publisher(Odometry, '/synced/odom', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
         
-        # 🚀 HIGH-SPEED UDP SOCKET
+        #   HIGH-SPEED UDP SOCKET
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 8 * 1024 * 1024)
@@ -38,7 +38,7 @@ class DirectARKitSync(Node):
         self.latest_odom_data = None
         self.latest_info_data = None
 
-        self.get_logger().info("🔥 Direct ARKit Sync Active! Listening on UDP 8765...")
+        self.get_logger().info(" Direct ARKit Sync Active! Listening on UDP 8765...")
 
     def poll_socket(self):
         try:
@@ -93,7 +93,7 @@ class DirectARKitSync(Node):
         elif topic == 1:
             self.sync_buffer[stamp_key]['depth'] = raw_data
 
-        # 🚀 TRIGGER: If we have both RGB and Depth for this exact microsecond, publish!
+        #   TRIGGER: If we have both RGB and Depth for this exact microsecond, publish!
         if self.sync_buffer[stamp_key]['rgb'] and self.sync_buffer[stamp_key]['depth']:
             self.publish_unified_frame(self.sync_buffer[stamp_key]['rgb'], self.sync_buffer[stamp_key]['depth'])
             del self.sync_buffer[stamp_key]
@@ -156,7 +156,7 @@ class DirectARKitSync(Node):
         info_msg.header.stamp, info_msg.header.frame_id = now, "camera_optical_link"
         info_msg.width, info_msg.height = TARGET_W, TARGET_H
         
-        # 🚀 MANDATORY FOR RTAB-MAP: Declare the distortion model so it passes calibration checks
+        #   MANDATORY FOR RTAB-MAP: Declare the distortion model so it passes calibration checks
         info_msg.distortion_model = "plumb_bob"
         info_msg.d = [0.0, 0.0, 0.0, 0.0, 0.0]
         
@@ -186,10 +186,10 @@ class DirectARKitSync(Node):
         ros_rot_mat = ar_mat @ swift_rotation_map
         base_rot = R.from_matrix(ros_rot_mat[0:3, 0:3])
 
-        # 🚀 EXTRACT EULER ANGLES (Roll, Pitch, Yaw)
+        #   EXTRACT EULER ANGLES (Roll, Pitch, Yaw)
         roll, pitch, yaw = base_rot.as_euler('xyz', degrees=True)
 
-        # 🚀 APPLY YOUR CUSTOM CORRECTIONS
+        #   APPLY YOUR CUSTOM CORRECTIONS
         # 1. Swap Roll and Yaw
         new_roll = -yaw
         new_pitch = pitch
@@ -211,6 +211,34 @@ class DirectARKitSync(Node):
         t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = float(ros_tx), float(ros_ty), float(ros_tz)
         t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = quat[0], quat[1], quat[2], quat[3]
         self.tf_broadcaster.sendTransform(t)
+
+        #   B. THE CHASSIS BRIDGE (camera_link -> base_link)
+        t_base = TransformStamped()
+        t_base.header.stamp = now
+        t_base.header.frame_id = 'camera_link'
+        t_base.child_frame_id = 'base_link'
+        t_base.transform.translation.x = 0.0
+        t_base.transform.translation.y = 0.0
+        t_base.transform.translation.z = 0.0
+        t_base.transform.rotation.x = 0.0
+        t_base.transform.rotation.y = 0.0
+        t_base.transform.rotation.z = 0.0
+        t_base.transform.rotation.w = 1.0  # Identity rotation (0 offset)
+        self.tf_broadcaster.sendTransform(t_base)
+
+        #   C. THE GOD MODE BYPASS (map -> odom)
+        t_map = TransformStamped()
+        t_map.header.stamp = now
+        t_map.header.frame_id = 'map'
+        t_map.child_frame_id = 'odom'
+        t_map.transform.translation.x = 0.0
+        t_map.transform.translation.y = 0.0
+        t_map.transform.translation.z = 0.0
+        t_map.transform.rotation.x = 0.0
+        t_map.transform.rotation.y = 0.0
+        t_map.transform.rotation.z = 0.0
+        t_map.transform.rotation.w = 1.0  # Identity rotation (0 offset)
+        self.tf_broadcaster.sendTransform(t_map)
 
         # B. Static Optical Transform (camera_link -> camera_optical_link)
         t_opt = TransformStamped()

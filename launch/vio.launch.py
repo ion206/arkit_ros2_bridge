@@ -9,8 +9,8 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='arkit_ros2_bridge',
-            executable='iphoneInput',  # e.g., 'my_script' from setup.py console_scripts
-            name='iphoneInput',
+            executable='iphoneVIO',  # e.g., 'my_script' from setup.py console_scripts
+            name='iphoneVIO',
             output='screen'
         ),
     ])

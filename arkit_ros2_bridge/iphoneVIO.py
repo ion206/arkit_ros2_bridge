@@ -13,11 +13,11 @@ class DirectARKitSync(Node):
     def __init__(self):
         super().__init__('direct_arkit_sync')
         
-        # 🚀 ONLY PUBLISH ODOMETRY & TF
+        #   ONLY PUBLISH ODOMETRY & TF
         self.pub_odom = self.create_publisher(Odometry, '/synced/odom', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
         
-        # 🚀 HIGH-SPEED UDP SOCKET
+        #   HIGH-SPEED UDP SOCKET
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 8 * 1024 * 1024)
@@ -28,7 +28,7 @@ class DirectARKitSync(Node):
         self.timer = self.create_timer(0.001, self.poll_socket)
         
         self.udp_chunks = {}
-        self.get_logger().info("🔥 VIO Telemetry Active! Streaming 60Hz Odometry...")
+        self.get_logger().info(" VIO Telemetry Active! Streaming Odometry from UDP 8765...")
 
     def poll_socket(self):
         try:

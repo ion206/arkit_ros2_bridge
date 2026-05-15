@@ -8,4 +8,4 @@ sock.bind(('0.0.0.0', 8765))
 print("Listening for raw UDP...")
 while True:
     data, addr = sock.recvfrom(1024)
-    print(f"🔥 RECEIVED {len(data)} bytes from {addr}")
+    print(f"RECEIVED {len(data)} bytes from {addr}")
