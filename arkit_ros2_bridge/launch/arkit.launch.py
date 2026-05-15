@@ -9,8 +9,8 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='arkit_ros2_bridge',
-            executable='udp_receiver',  # e.g., 'my_script' from setup.py console_scripts
-            name='udp_receiver',
+            executable='iphoneInput',  # e.g., 'my_script' from setup.py console_scripts
+            name='iphoneInput',
             output='screen'
         ),
     ])

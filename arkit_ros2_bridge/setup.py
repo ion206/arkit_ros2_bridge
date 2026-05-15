@@ -17,14 +17,14 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Ayan Syed',
-    maintainer_email='ayansyedca@example.com',
+    maintainer_email='ayansyedca@gmail.com',
     description='UDP bridge for streaming iOS ARKit depth, rbg, and telemetry data',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             # Maps the command 'udp_receiver' to the main() function in udp_receiver.py
-            'udp_receiver = arkit_ros2_bridge.udp_receiver:main'
+            'iphoneInput = arkit_ros2_bridge.iphoneInput:main'
         ],
     },
 )
