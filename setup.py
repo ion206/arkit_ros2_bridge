@@ -23,8 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # Maps the command 'udp_receiver' to the main() function in udp_receiver.py
-            'iphoneInput = arkit_ros2_bridge.iphoneInput:main'
+            'iphoneMapping = arkit_ros2_bridge.iphoneMapping:main',
+            'iphoneVIO = arkit_ros2_bridge.iphoneVIO:main'
         ],
     },
 )
